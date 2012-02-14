@@ -25,7 +25,7 @@ public class MainActivity extends MapActivity {
         Drawable drawable = this.getResources().getDrawable(R.drawable.androidmarker);
 //        drawable.setBounds(-drawable.getIntrinsicWidth() / 2, -drawable.getIntrinsicHeight(), drawable.getIntrinsicWidth() / 2, 0);
         
-        HelloItemizedOverlay itemizedoverlay = new HelloItemizedOverlay(drawable, MainActivity.this);
+        AItemizedOverlay itemizedoverlay = new AItemizedOverlay(drawable, MainActivity.this);
         
         GeoPoint point = new GeoPoint(19240000,-99120000);
         OverlayItem overlayitem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
