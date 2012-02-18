@@ -44,7 +44,6 @@ public class MainActivity extends MapActivity {
         
         List<Overlay> mapOverlays = mapView.getOverlays();
         Drawable drawable = this.getResources().getDrawable(R.drawable.bicicle);
-//        drawable.setBounds(-drawable.getIntrinsicWidth() / 2, -drawable.getIntrinsicHeight(), drawable.getIntrinsicWidth() / 2, 0);
         
         BicicleItemizedOverlay itemizedoverlay = new BicicleItemizedOverlay(drawable, MainActivity.this);
         
@@ -53,7 +52,7 @@ public class MainActivity extends MapActivity {
         
         for(Lugar lugar: lugares){
         	
-        	OverlayItem overlayitem = new OverlayItem(lugar.getGeoPoint(), "Hola, Mundo!", "I'm in Mexico City!");
+        	OverlayItem overlayitem = new OverlayItem(lugar.getGeoPoint(), lugar.tipo, lugar.nome);
             itemizedoverlay.addOverlay(overlayitem);
         }
         
