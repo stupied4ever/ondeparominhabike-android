@@ -12,7 +12,9 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import br.com.ondeparominhabike.database.DatabaseHelper;
 import br.com.ondeparominhabike.json.Lugar;
+import br.com.ondeparominhabike.model.Lugares;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -21,6 +23,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 import com.google.gson.Gson;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -29,13 +32,16 @@ import android.widget.Toast;
 
 public class MainActivity extends MapActivity {
 	
-	String url = "http://10.10.1.100:3000/lugares.json";
+	List<Lugar> lugares;
+	
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        Lugares.sincronizaLugares(this);
         
         MapView mapView = (MapView) findViewById(R.id.mapview);
         MapController mapController = mapView.getController();
@@ -48,7 +54,7 @@ public class MainActivity extends MapActivity {
         BicicleItemizedOverlay itemizedoverlay = new BicicleItemizedOverlay(drawable, MainActivity.this);
         
         
-        Lugar[] lugares = parseJson();
+        lugares = Lugares.todos(this);
         
         for(Lugar lugar: lugares){
         	
@@ -58,60 +64,17 @@ public class MainActivity extends MapActivity {
         
         mapOverlays.add(itemizedoverlay);
         
-        if(lugares.length > 0){
+        if(lugares.size() > 0){
         	mapController.setZoom(14);
-            mapController.setCenter(lugares[0].getGeoPoint());	
-        }
-        
-        
-        
-        
+            mapController.setCenter(lugares.get(0).getGeoPoint());	
+        }                
     }
     
-    
-    private Lugar[] parseJson(){
-    	Gson gson = new Gson();
-        
-    	InputStream source = retrieveStream(url);
-    	
-        Reader reader = new InputStreamReader(source);
-        
-        Lugar[] lugares = gson.fromJson(reader, Lugar[].class);
-        
-        return lugares;
-        
-    }
-
 	@Override
 	protected boolean isRouteDisplayed() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 	
-	private InputStream retrieveStream(String url) {
-        
-        DefaultHttpClient client = new DefaultHttpClient(); 
-        
-        HttpGet getRequest = new HttpGet(url);
-          
-        try {
-           
-           HttpResponse getResponse = client.execute(getRequest);
-           final int statusCode = getResponse.getStatusLine().getStatusCode();
-           
-           if (statusCode != HttpStatus.SC_OK) { 
-              return null;
-           }
-
-           HttpEntity getResponseEntity = getResponse.getEntity();
-           return getResponseEntity.getContent();
-           
-        } 
-        catch (IOException e) {
-           getRequest.abort();
-        }
-        
-        return null;
-        
-     }
+	
 }
