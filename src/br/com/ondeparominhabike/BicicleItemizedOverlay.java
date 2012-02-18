@@ -10,18 +10,18 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
 
-public class AItemizedOverlay extends ItemizedOverlay {
+public class BicicleItemizedOverlay extends ItemizedOverlay {
 	
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	Context mContext;
 	
-	public AItemizedOverlay(Drawable defaultMarker, Context context) {
+	public BicicleItemizedOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
 
 		mContext = context;
 	}
 	
-	public AItemizedOverlay(Drawable defaultMarker) {
+	public BicicleItemizedOverlay(Drawable defaultMarker) {
 		super(boundCenterBottom(defaultMarker));
 		// TODO Auto-generated constructor stub
 	}
