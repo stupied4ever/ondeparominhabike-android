@@ -51,7 +51,9 @@ public abstract class Lugares {
 		}
 		
 		Log.d("db", String.valueOf(simpleDao.queryForAll().size()) + " lugares nno banco" );
+		
 		List<Lugar> lugares = parseJson();
+		Log.d("db", String.valueOf(lugares.size()) + " lugares no array banco" );
 		for(Lugar l: lugares){
 			simpleDao.create(l);			
 		}
@@ -66,7 +68,7 @@ public abstract class Lugares {
     	
     	String url;
 		try {
-			url = "http://192.168.0.11:3000/lugares.json?" + URLEncoder.encode("desde=2012-02-18 01:11:12", "utf-8");
+			url = "http://192.168.0.11:3000/lugares.json?desde=" + URLEncoder.encode("2012-02-18 01:11:12", "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
