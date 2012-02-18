@@ -1,10 +1,14 @@
 package br.com.ondeparominhabike.model;
 
 import br.com.ondeparominhabike.json.Lugar;
+import br.com.ondeparominhabike.json.SincronizacaoResposta;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -31,7 +35,6 @@ public abstract class Lugares {
 		return simpleDao.queryForAll();
 	}
 	
-	
 	public static void sincronizaLugares(Context context){
 		// get our dao
     	DatabaseHelper dh = new DatabaseHelper(context);
@@ -47,7 +50,8 @@ public abstract class Lugares {
 			return;
 		}
 		
-		Lugar[] lugares = parseJson();
+		Log.d("db", String.valueOf(simpleDao.queryForAll().size()) + " lugares nno banco" );
+		List<Lugar> lugares = parseJson();
 		for(Lugar l: lugares){
 			simpleDao.create(l);			
 		}
@@ -55,19 +59,29 @@ public abstract class Lugares {
 		Log.d("db", String.valueOf(simpleDao.queryForAll().size()) + " lugares nno banco" );
 	}
 	
-	 private static Lugar[] parseJson(){
+	 private static List<Lugar> parseJson(){
     	Gson gson = new Gson();
-    
-//    	String url = "http://10.10.1.100:3000/lugares.json";
-    	String url = "http://192.168.0.11:3000/lugares.json";
 
-    	InputStream source = retrieveStream(url);
+//    	String url = "http://192.168.0.11:3000/lugares.json?since=2012-02-18 00:50:44";
     	
+    	String url;
+		try {
+			url = "http://192.168.0.11:3000/lugares.json?" + URLEncoder.encode("desde=2012-02-18 01:11:12", "utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			// TODO Auto-generated catch block
+			Log.d("sincronizacao", "nao conseguiu encodar a url");
+			return null;
+		}
+    	
+    	InputStream source = retrieveStream(url);
+		
         Reader reader = new InputStreamReader(source);
         
-        Lugar[] lugares = gson.fromJson(reader, Lugar[].class);
+        SincronizacaoResposta resposta = gson.fromJson(reader, SincronizacaoResposta.class);
         
-        return lugares;
+        return resposta.lugares;
         
     }
 	 
