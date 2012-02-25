@@ -1,18 +1,13 @@
 package br.com.ondeparominhabike;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import br.com.ondeparominhabike.database.DatabaseHelper;
+import android.graphics.drawable.Drawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import br.com.ondeparominhabike.json.Lugar;
 import br.com.ondeparominhabike.model.Lugares;
 
@@ -22,19 +17,13 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
-import com.google.gson.Gson;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
 
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
-
-public class MainActivity extends MapActivity {
+public class MainActivity extends MapActivity implements LocationListener {
 	
 	List<Lugar> lugares;
-	
-	
+	private LocationManager locationManager;
+	private MapController mapController;
+	 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,7 +33,7 @@ public class MainActivity extends MapActivity {
         Lugares.sincronizaLugares(this);
         
         MapView mapView = (MapView) findViewById(R.id.mapview);
-        MapController mapController = mapView.getController();
+        mapController = mapView.getController();
         
         mapView.setBuiltInZoomControls(true);
         
@@ -66,7 +55,18 @@ public class MainActivity extends MapActivity {
         
         if(lugares.size() > 0){
         	mapController.setZoom(14);
-            mapController.setCenter(lugares.get(0).getGeoPoint());	
+        	
+        	// Get the location manager
+    		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+    		// List all providers:
+    		
+    		Location location = locationManager.getLastKnownLocation("gps");
+    		if (location != null){
+    			mapController.animateTo(new GeoPoint((int)(location.getLatitude()* 1E6), (int)(location.getLongitude()* 1E6)));	
+    		}else{
+    			mapController.animateTo(lugares.get(0).getGeoPoint());
+    		}
         }                
     }
     
@@ -76,5 +76,44 @@ public class MainActivity extends MapActivity {
 		return false;
 	}
 	
+
+	/** Register for the updates when Activity is in foreground */
+	@Override
+	protected void onResume() {
+		super.onResume();
+		locationManager.requestLocationUpdates("gps", 20000, 1, this);
+	}
+
+	/** Stop the updates when Activity is paused */
+	@Override
+	protected void onPause() {
+		super.onPause();
+		locationManager.removeUpdates(this);
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// TODO Auto-generated method stub
+		mapController.animateTo(new GeoPoint((int)(location.getLatitude()* 1E6), (int)(location.getLongitude()* 1E6)));
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
