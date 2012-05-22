@@ -6,7 +6,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 public class Lugar {
 	
-	@DatabaseField
+	@DatabaseField(id = true)
 	@SerializedName("id")
 	public int id;
 	

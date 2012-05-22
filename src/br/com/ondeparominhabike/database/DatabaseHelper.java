@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import br.com.ondeparominhabike.R;
 import br.com.ondeparominhabike.json.Lugar;
+import br.com.ondeparominhabike.json.SincronizacaoResposta;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -23,11 +24,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	// name of the database file for your application -- change to something appropriate for your app
 	private static final String DATABASE_NAME = "helloAndroid.db";
 	// any time you make changes to your database objects, you may have to increase the database version
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 4;
 
 	// the DAO object we use to access the SimpleData table
+	private Dao<SincronizacaoResposta, Integer> sincronizacaoRespostaDao = null;
 	private Dao<Lugar, Integer> lugarDao = null;
 	private RuntimeExceptionDao<Lugar, Integer> lugarRuntimeDao = null;
+	private RuntimeExceptionDao<SincronizacaoResposta, Integer> sincronizacaoRespostaRuntimeDao = null;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
@@ -42,6 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		try {
 			Log.i(DatabaseHelper.class.getName(), "onCreate");
 			TableUtils.createTable(connectionSource, Lugar.class);
+			TableUtils.createTable(connectionSource, SincronizacaoResposta.class);
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Can't create database", e);
 			throw new RuntimeException(e);
@@ -49,12 +53,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 		// here we try inserting data in the on-create as a test
 		RuntimeExceptionDao<Lugar, Integer> dao = getLugarDao();
+		RuntimeExceptionDao<SincronizacaoResposta, Integer> daoSinc = getSincronizacaoRespostaDao();
 		long millis = System.currentTimeMillis();
-		// create some entries in the onCreate
-		Lugar lugar = new Lugar();
-		dao.create(lugar);
-		lugar = new Lugar();
-		dao.create(lugar);
 		Log.i(DatabaseHelper.class.getName(), "created new entries in onCreate: " + millis);
 	}
 
@@ -67,6 +67,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		try {
 			Log.i(DatabaseHelper.class.getName(), "onUpgrade");
 			TableUtils.dropTable(connectionSource, Lugar.class, true);
+			TableUtils.dropTable(connectionSource, SincronizacaoResposta.class, true);
 			// after we drop the old databases, we create the new ones
 			onCreate(db, connectionSource);
 		} catch (SQLException e) {
@@ -82,6 +83,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public Dao<Lugar, Integer> getDao() throws SQLException {
 		if (lugarDao == null) {
 			lugarDao = getDao(Lugar.class);
+			sincronizacaoRespostaDao = getDao(SincronizacaoResposta.class);
 		}
 		return lugarDao;
 	}
@@ -96,6 +98,19 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return lugarRuntimeDao;
 	}
+	
+	/**
+	 * Returns the RuntimeExceptionDao (Database Access Object) version of a Dao for our SimpleData class. It will
+	 * create it or just give the cached value. RuntimeExceptionDao only through RuntimeExceptions.
+	 */
+	public RuntimeExceptionDao<SincronizacaoResposta, Integer> getSincronizacaoRespostaDao() {
+		if (sincronizacaoRespostaRuntimeDao == null) {
+			sincronizacaoRespostaRuntimeDao = getRuntimeExceptionDao(SincronizacaoResposta.class);
+		}
+		return sincronizacaoRespostaRuntimeDao;
+	}
+	
+	
 
 	/**
 	 * Close the database connections and clear any cached DAOs.

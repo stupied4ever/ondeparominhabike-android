@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import com.j256.ormlite.field.DatabaseField;
 
 public class SincronizacaoResposta {
-	
+	@DatabaseField
 	@SerializedName("ultima_atualizacao")
 	public String ultimaAtualizacao;
 	
